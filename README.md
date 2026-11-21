@@ -45,13 +45,12 @@ npm run db:seed
 
 The seed script creates the schema if needed, inserts the sample venues and floor graphs, and creates/updates the admin account from the environment variables. Admin passwords are stored as bcrypt hashes. Keep the database URL and secrets private.
 
-## Netlify deployment
+## Vercel deployment
 
-Netlify serves the Vite frontend and runs the Express API as a Function. You can publish the sample maps as a read-only demo first; admin sign-in and persistent venue edits stay disabled until an external PostgreSQL database is connected.
+This project uses Vercel's Express support for the API and serves the Vite build from Vercel's `public/` static-assets directory. The `vercel.json` build command prepares both. Vercel deploys the Express app as a Function, so PostgreSQL is required for public production use; the in-memory demo mode is only for local development.
 
-1. Open the Netlify import link for `honeybutoliya-lgtm/campus-finder` and select the `wayin-netlify` branch. The included `netlify.toml` sets the build command, `dist` publish folder, Functions directory, API rewrite, and SPA fallback.
-2. Deploy. Netlify will provide a public `*.netlify.app` address. In the demo-only mode, visitors can navigate the bundled sample maps; admin login is intentionally unavailable.
-3. To enable the real college map and admin editing, create an external PostgreSQL database and initialize its schema and first admin. In PowerShell, replace the example values, then run:
+1. Push the project to the GitHub repository's `main` branch, then in Vercel choose **Add New → Project** and import that repository. Use the repository root as the project root and keep the detected Express framework. The build command is configured in `vercel.json`.
+2. Create a PostgreSQL database and initialize its schema and first admin from your computer. In PowerShell, replace the example values and run:
 
    ```powershell
    $env:NODE_ENV = "production"
@@ -63,10 +62,10 @@ Netlify serves the Vite frontend and runs the Express API as a Function. You can
    ```
 
    The seed command is repeatable and will not add demo venues when that flag is `false`.
-4. Add `DATABASE_URL` and a strong, random `JWT_SECRET` under the Netlify site's environment variables, scoped to Functions. Generate a JWT secret with `node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"`. Set `PGSSL=true` if required by your database provider. Do not put secrets in frontend `VITE_` variables or commit them.
-5. Redeploy. Check `/api/health`; the response should show `"storage":"postgres"`. Then open `/?view=admin` and sign in with the admin created in step 3.
+3. In the Vercel project, open **Settings → Environment Variables** and add `DATABASE_URL`, a strong random `JWT_SECRET`, `WAYIN_ADMIN_EMAIL`, and `WAYIN_ADMIN_PASSWORD` for Production (and Preview if needed). Generate a JWT secret with `node -e "console.log(require('node:crypto').randomBytes(48).toString('base64url'))"`. Set `PGSSL=true` if required by your database provider. Do not put secrets in frontend `VITE_` variables or commit them.
+4. Deploy or redeploy. Check `/api/health`; it should show `"storage":"postgres"`. Open `/?view=admin` and sign in with the admin created in step 2.
 
-The Netlify Function reuses the Express API, and its PostgreSQL connection pool is limited to one connection per function instance. A real venue still needs a surveyed floor plan and calibrated walkway graph before its routes can be trusted. The floor-plan upload currently previews locally; it does not digitize or calibrate the map.
+A real venue still needs a surveyed floor plan and calibrated walkway graph before its routes can be trusted. The floor-plan upload currently previews locally; it does not digitize or calibrate the map. The PostgreSQL connection pool is limited to one connection per Vercel Function instance.
 
 ## Tests and production build
 
@@ -75,7 +74,7 @@ npm test
 npm run build
 ```
 
-For standalone Express hosting, set `NODE_ENV=production`, `DATABASE_URL`, and `JWT_SECRET` before `npm run start:production`. For Netlify, use the Function and redirects configured in `netlify.toml`.
+For standalone Express hosting, set `NODE_ENV=production`, `DATABASE_URL`, and `JWT_SECRET` before `npm run start:production`. For Vercel, `npm run build:vercel` also prepares static assets in `public/`.
 
 ## Data model
 

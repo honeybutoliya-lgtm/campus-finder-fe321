@@ -11,6 +11,7 @@
     "start:production": "node database/seed.js && node server/index.js",
     "db:seed": "node database/seed.js",
     "build": "vite build",
+    "build:vercel": "npm run build && node scripts/prepare-vercel-public.js",
     "preview": "vite preview --host 0.0.0.0",
     "test": "node --test"
   },

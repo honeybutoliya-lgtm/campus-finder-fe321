@@ -1,5 +1,7 @@
 node_modules/
 dist/
+public/assets/
+public/index.html
 .npm-cache/
 .netlify/
 .env

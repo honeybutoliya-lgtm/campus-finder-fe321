@@ -19,7 +19,7 @@ const jwtSecret = process.env.JWT_SECRET || (netlifyDemoPreview ? randomBytes(32
 const pool = process.env.DATABASE_URL ? new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.PGSSL === 'true' ? { rejectUnauthorized: false } : undefined,
-  max: process.env.NETLIFY === 'true' ? 1 : 10,
+  max: process.env.NETLIFY === 'true' || process.env.VERCEL === '1' ? 1 : 10,
 }) : null;
 const memoryVenues = structuredClone(seedVenues);
 const memorySearchEvents = [];
@@ -234,13 +234,13 @@ app.post('/api/search-events', async (request, response) => {
   }
 });
 
-if (process.env.NODE_ENV === 'production' && process.env.NETLIFY !== 'true') {
+if (process.env.NODE_ENV === 'production' && process.env.NETLIFY !== 'true' && process.env.VERCEL !== '1') {
   const dist = path.join(root, 'dist');
   app.use(express.static(dist, { index: false }));
   app.get(/.*/, (_request, response) => response.sendFile(path.join(dist, 'index.html')));
 }
 
-if (process.env.NETLIFY !== 'true') {
+if (process.env.NETLIFY !== 'true' && process.env.VERCEL !== '1') {
   app.listen(port, () => console.log(`WayIn API ready at http://localhost:${port}${databaseReady ? ' (PostgreSQL)' : ' (seeded demo mode)'}`));
 }
 
