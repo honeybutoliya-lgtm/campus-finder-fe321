@@ -1,0 +1,39 @@
+{
+  "name": "wayin-indoor-navigation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"npm:server:dev\" \"npm:ui:dev\"",
+    "ui:dev": "vite --host 0.0.0.0",
+    "server:dev": "node --watch server/index.js",
+    "start": "node server/index.js",
+    "start:production": "node database/seed.js && node server/index.js",
+    "db:seed": "node database/seed.js",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "latest",
+    "@vitejs/plugin-react": "latest",
+    "bcryptjs": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "lucide-react": "latest",
+    "pg": "latest",
+    "qrcode.react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "serverless-http": "^4.0.0",
+    "tailwindcss": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "concurrently": "latest"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

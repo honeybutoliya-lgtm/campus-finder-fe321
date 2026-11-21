@@ -1,0 +1,10 @@
+{
+  "name": "WayIn Indoor Navigation",
+  "short_name": "WayIn",
+  "description": "Find your way inside malls, schools and resorts.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#f4f7fb",
+  "icons": [{ "src": "/wayin-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
