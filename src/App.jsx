@@ -424,7 +424,10 @@ function AdminPage({ venues, setVenues, blocked, setBlocked, onShowQr }) {
     setError('');
     try {
       const response = await fetch('/api/admin/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) });
-      const result = await response.json();
+      const responseText = await response.text();
+      let result;
+      try { result = responseText ? JSON.parse(responseText) : {}; }
+      catch { throw new Error(`Sign-in endpoint returned a non-JSON response (${response.status}). Please refresh and try again.`); }
       if (!response.ok) throw new Error(result.error || 'The email or password did not match.');
       sessionStorage.setItem('wayin-admin-token', result.token);
       setAdminToken(result.token); setAuthenticated(true);
