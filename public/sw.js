@@ -1,4 +1,4 @@
-const CACHE = 'wayin-shell-v1';
+const CACHE = 'wayin-shell-v2';
 const APP_SHELL = ['/', '/manifest.webmanifest', '/wayin-mark.svg'];
 
 self.addEventListener('install', (event) => {
@@ -7,15 +7,28 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key)))));
+  event.waitUntil(caches.keys().then((keys) => Promise.all(
+    keys.filter((key) => key.startsWith('wayin-shell-') && key !== CACHE).map((key) => caches.delete(key)),
+  )));
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
-  event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then((response) => {
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.startsWith('/api/')) return;
+
+  const cacheResponse = (response) => {
     if (response.ok) caches.open(CACHE).then((cache) => cache.put(request, response.clone()));
     return response;
-  }).catch(() => caches.match('/'))));
+  };
+
+  if (request.mode === 'navigate' || !url.pathname.startsWith('/assets/')) {
+    event.respondWith(fetch(request).then(cacheResponse).catch(async () => {
+      return (await caches.match(request)) || caches.match('/');
+    }));
+    return;
+  }
+
+  event.respondWith(caches.match(request).then((cached) => cached || fetch(request).then(cacheResponse)));
 });
